@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STENS FILMBIBLIOTEK</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'retro-yellow': '#FFFF99',
+                        'retro-green': '#00FF00',
+                        'retro-blue': '#000837',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAEklEQVQImWNgYGD4z0AswK4SAFXuAf8EPy+xAAAAAElFTkSuQmCC');
+            background-repeat: repeat;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-retro-blue text-retro-yellow p-4 font-mono">
+    <div class="max-w-3xl mx-auto bg-retro-blue border-4 border-retro-yellow p-6 rounded-lg shadow-lg">
+        <h1 class="text-4xl font-bold text-center mb-6 text-retro-yellow drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">STENS FILMBIBLIOTEK</h1>
+        
+        <% if (typeof addNewMovie === 'undefined' || !addNewMovie) { %>
+            <button id="showAddForm" class="block w-full text-center bg-retro-green text-black px-6 py-3 rounded-full hover:bg-green-400 transition duration-200 mb-6 font-bold text-lg">Tilføj ny film</button>
+            
+            <form id="addMovieForm" action="/movie" method="POST" class="mb-6 hidden">
+                <div class="space-y-4">
+                    <input type="text" name="title" placeholder="Film Titel" required class="w-full p-2 rounded bg-retro-yellow text-black">
+                    <input type="text" name="director" placeholder="Instruktør" required class="w-full p-2 rounded bg-retro-yellow text-black">
+                    <input type="number" name="year" placeholder="Udgivelsesår" required class="w-full p-2 rounded bg-retro-yellow text-black">
+                    <input type="text" name="genre" placeholder="Genre" required class="w-full p-2 rounded bg-retro-yellow text-black">
+                    <button type="submit" class="w-full bg-retro-green text-black px-6 py-3 rounded-full hover:bg-green-400 transition duration-200 font-bold">Tilføj film</button>
+                </div>
+            </form>
+
+            <% if (typeof movies === 'undefined') { %>
+                <p>Ingen film tilgængelige.</p>
+            <% } else { %>
+                <ul class="space-y-4">
+                    <% movies.forEach(movie => { %>
+                        <li class="flex justify-between items-center bg-retro-blue p-4 rounded-lg border-2 border-retro-yellow">
+                            <div>
+                                <span class="font-bold"><%= movie.title %></span> af <%= movie.director %> (<%= movie.year %>) - <%= movie.genre %>
+                            </div>
+                            <% if (movie._id) { %>
+                                <form action="/movie/<%= movie._id %>/delete" method="POST" class="inline">
+                                    <button type="submit" class="bg-retro-green text-black px-4 py-2 rounded-full hover:bg-green-400 transition duration-200 font-bold">Slet</button>
+                                </form>
+                            <% } %>
+                        </li>
+                    <% }) %>
+                </ul>
+            <% } %>
+        <% } else { %>
+            <h2 class="text-2xl font-bold mb-4">Tilføj ny film</h2>
+            <form action="/movie" method="POST" class="space-y-4">
+                <input type="text" name="title" placeholder="Film Titel" required class="w-full p-2 rounded bg-retro-yellow text-black">
+                <input type="text" name="director" placeholder="Instruktør" required class="w-full p-2 rounded bg-retro-yellow text-black">
+                <input type="number" name="year" placeholder="Udgivelsesår" required class="w-full p-2 rounded bg-retro-yellow text-black">
+                <input type="text" name="genre" placeholder="Genre" required class="w-full p-2 rounded bg-retro-yellow text-black">
+                <button type="submit" class="w-full bg-retro-green text-black px-6 py-3 rounded-full hover:bg-green-400 transition duration-200 font-bold">Tilføj film</button>
+            </form>
+            <a href="/" class="block mt-4 text-center text-retro-yellow hover:underline">Tilbage til filmoversigt</a>
+        <% } %>
+    </div>
+
+    <footer class="mt-8 text-center text-sm text-retro-yellow/80">
+        <p>Senest opdateret: <%= new Date().toLocaleDateString('da-DK') %></p>
+        <p>Lavet med 💛 af Sten Larris</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const deleteForms = document.querySelectorAll('form[action^="/movie/"]');
+            deleteForms.forEach(form => {
+                form.addEventListener('submit', (e) => {
+                    if (!confirm('Er du sikker på, at du vil slette denne film?')) {
+                        e.preventDefault();
+                    }
+                });
+            });
+
+            const showAddFormButton = document.getElementById('showAddForm');
+            const addMovieForm = document.getElementById('addMovieForm');
+            if (showAddFormButton && addMovieForm) {
+                showAddFormButton.addEventListener('click', () => {
+                    addMovieForm.classList.toggle('hidden');
+                    showAddFormButton.textContent = addMovieForm.classList.contains('hidden') ? 'Tilføj ny film' : 'Skjul formular';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
